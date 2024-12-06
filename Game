@@ -1,0 +1,104 @@
+pip install pygame
+import pygame
+import random
+
+# Initialize Pygame
+pygame.init()
+
+# Set up display
+width, height = 600, 400
+screen = pygame.display.set_mode((width, height))
+pygame.display.set_caption("Catch the Apples")
+
+# Define colors
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLACK = (0, 0, 0)
+
+# Set up fonts
+font = pygame.font.SysFont("Arial", 36)
+
+# Player settings
+player_width = 100
+player_height = 20
+player_speed = 8
+player_x = (width - player_width) // 2
+player_y = height - player_height - 10
+
+# Apple settings
+apple_width = 30
+apple_height = 30
+apple_speed = 4
+
+# Game variables
+score = 0
+game_over = False
+
+# Set up the clock
+clock = pygame.time.Clock()
+
+# Function to draw the player (basket)
+def draw_player(x):
+    pygame.draw.rect(screen, GREEN, (x, player_y, player_width, player_height))
+
+# Function to draw the falling apple
+def draw_apple(x, y):
+    pygame.draw.ellipse(screen, RED, (x, y, apple_width, apple_height))
+
+# Function to display the score
+def display_score(score):
+    score_text = font.render(f"Score: {score}", True, WHITE)
+    screen.blit(score_text, (10, 10))
+
+# Main game loop
+while not game_over:
+    screen.fill(BLACK)
+
+    # Handle events
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            game_over = True
+
+    # Get key states
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_LEFT] and player_x > 0:
+        player_x -= player_speed
+    if keys[pygame.K_RIGHT] and player_x < width - player_width:
+        player_x += player_speed
+
+    # Create falling apple
+    apple_x = random.randint(0, width - apple_width)
+    apple_y = 0
+
+    # Move the apple down
+    apple_y += apple_speed
+
+    # Check if the apple hits the player
+    if (player_x < apple_x < player_x + player_width) and (player_y < apple_y < player_y + apple_height):
+        score += 1
+        apple_y = -apple_height  # Reset the apple's position
+
+    # Draw the player and apple
+    draw_player(player_x)
+    draw_apple(apple_x, apple_y)
+
+    # Display the score
+    display_score(score)
+
+    # Check for game over condition
+    if apple_y > height:
+        game_over = True
+        game_over_text = font.render("Game Over!", True, WHITE)
+        screen.blit(game_over_text, (width // 2 - 100, height // 2 - 30))
+        pygame.display.update()
+        pygame.time.wait(2000)
+
+    # Update the screen
+    pygame.display.update()
+
+    # Set the game frame rate
+    clock.tick(60)
+
+# Quit Pygame
+pygame.quit()
